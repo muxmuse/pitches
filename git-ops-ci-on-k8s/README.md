@@ -45,21 +45,21 @@ spec:
 Build steps are defined in docker-image, e.g. with multi-stage builds. After a step, a new tag is pushed, eventually triggering the next step.
 
 ``` Dockerfile
+# Clone
+FROM git AS src
+RUN git clone $REPO_URL
+RUN git checkout ci/*******/release
+
 # Resolve dependencies
 FROM node AS build
+COPY --from=src ...
+RUN npm install
 
-...
-
-# Compile web-app
-FROM ...
-git checkout ci/*******/release
-
-
-# Push image
+# Push results
 FROM docker
+COPY --from=build ...
 RUN docker push ...
 
 git tag -a ci/*******/docker-build -a '{ "image":  "my-new-image" }'
 git push
 ```
- 
